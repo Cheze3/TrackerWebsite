@@ -1,10 +1,12 @@
 import type { NextConfig } from "next";
 
+const chromiumFiles = ["./node_modules/@sparticuz/chromium/bin/**"];
+
 const nextConfig: NextConfig = {
-  /* config options here */
   serverExternalPackages: ["@sparticuz/chromium", "puppeteer-core", "puppeteer"],
   outputFileTracingIncludes: {
-    "/api/cron/price-check": ["./node_modules/@sparticuz/chromium/bin/**"],
+    "/api/tracked-products": chromiumFiles,
+    "/api/cron/update-prices": chromiumFiles,
   },
 };
 
