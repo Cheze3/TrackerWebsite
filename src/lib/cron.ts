@@ -1,7 +1,7 @@
 import cron from 'node-cron';
 import { prisma } from '@/lib/prisma';
 // @ts-ignore
-import { scrapeProduct } from '@/lib/scrape';
+import { scrapeProduct, launchBrowser } from '@/lib/scrape';
 
 /**
  * Executes a single batch price check across all active products.
@@ -22,9 +22,10 @@ export async function runPriceCheck() {
       return { message: 'No active tracked products found.', processed: 0, results: [] };
     }
 
+    const browser = await launchBrowser();
     for (const product of activeProducts) {
       try {
-        const scraped = await scrapeProduct(product.url);
+        const scraped = await scrapeProduct(product.url, browser);
         if (!scraped?.price) {
           results.push({ id: product.id, status: 'failed', error: 'No price returned from scraper' });
           continue;
@@ -102,6 +103,9 @@ export async function runPriceCheck() {
       } catch (err: any) {
         console.error(`[CRON] Error scraping ${product.id}:`, err.message);
         results.push({ id: product.id, status: 'failed', error: err.message });
+      }
+      finally {
+        await browser.close();
       }
     }
 

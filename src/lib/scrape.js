@@ -1,6 +1,7 @@
 // src/lib/scrape.js
 import puppeteer from 'puppeteer';
 import { URL } from 'url';
+import chromium from '@sparticuz/chromium';
 
 // 1. HARDCODED SITE SELECTORS MAP
 const SITE_SELECTORS = {
@@ -46,15 +47,17 @@ const parsePrice = (priceStr) => {
   return isNaN(parsed) ? null : parsed;
 };
 
-export async function scrapeProduct(url) {
-  const domain = getDomain(url);
-  const config = SITE_SELECTORS[domain];
-
-  if (!config) {
-    throw new Error(`No selector configuration found for domain: ${domain}`);
+export async function launchBrowser() {
+  if (process.env.VERCEL) {
+    const puppeteer = (await import('puppeteer-core')).default;
+    return puppeteer.launch({
+      args: chromium.args,
+      executablePath: await chromium.executablePath(),
+      headless: 'shell',
+    });
   }
-
-  const browser = await puppeteer.launch({
+  const puppeteer = (await import('puppeteer')).default;
+  return puppeteer.launch({
     headless: 'new',
     args: [
       '--no-sandbox',
@@ -63,6 +66,18 @@ export async function scrapeProduct(url) {
       '--window-size=1280,800',
     ],
   });
+}
+
+export async function scrapeProduct(url, sharedBrowser) {
+  const domain = getDomain(url);
+  const config = SITE_SELECTORS[domain];
+
+  if (!config) {
+    throw new Error(`No selector configuration found for domain: ${domain}`);
+  }
+
+  const browser = sharedBrowser ?? (await launchBrowser());
+  const page = await browser.newPage();
 
   try {
     const page = await browser.newPage();
@@ -136,5 +151,6 @@ export async function scrapeProduct(url) {
     };
   } finally {
     await browser.close();
+    if (!sharedBrowser) await browser.close();
   }
 }

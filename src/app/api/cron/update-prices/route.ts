@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { runPriceCheck } from '@/lib/cron';
 
+export const maxDuration = 60 * 1000; // 1 minute in milliseconds
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const secret = searchParams.get('secret');
