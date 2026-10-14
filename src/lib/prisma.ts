@@ -1,7 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 
-const connectionString = "" || process.env.DATABASE_URL;
+const connectionString = process.env.DATABASE_URL || "postgresql://postgres:';l123@localhost:5432/pricetracker?schema=public";
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
