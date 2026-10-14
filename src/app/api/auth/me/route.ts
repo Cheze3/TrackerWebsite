@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { getCurrentUser } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
+export const maxDuration = 60; // 60 seconds
+
 export async function GET() {
   const authUser = await getCurrentUser();
 
