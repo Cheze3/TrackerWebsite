@@ -23,5 +23,7 @@ Use the Vervel's website link: https://tracker-website-lime.vercel.app/
 ## Current sites supported:
 
 Nike
+
 Uniqlo
+
 Adidas (temporarily down due to site security)
